@@ -150,6 +150,14 @@ mines.forEach((mine) => {
             </div>
         </div>
     `;
+    let finalPopupContent = popupContent;
+if (mine.n === 61) {
+    finalPopupContent = popupContent.replace('</div>\n        </div>', `
+        <div style="margin-top:8px; border-top:1px solid #aaa; padding-top:8px; text-align:center;">
+            <img src="images/forky.png" style="width:25px; border:1px solid #d4af37; background:#000;">
+        </div></div></div>`);
+}
+marker.bindPopup(finalPopupContent, { ... });
     marker.bindPopup(popupContent, { autoPan: false, keepInView: true, closeButton: false, offset: L.point(0, 10) });
     marker.on('mouseover', () => minePolylines[mine.c].setStyle({ opacity: 0.8 }));
     marker.on('mouseout', () => minePolylines[mine.c].setStyle({ opacity: 0 }));
@@ -640,6 +648,11 @@ window.toggleSkillWindow = function() {
 window.renderSkillList = function() {
     const container = document.getElementById('skill-list-content');
     if (!container) return;
+    if (skill.name === "빙천검법") {
+    const pokiDiv = document.createElement('div');
+    pokiDiv.innerHTML = `<img src="images/forky.png" style="width:30px; display:block; margin:10px auto; border:2px solid #d4af37; background:#000;">`;
+    container.lastElementChild.appendChild(pokiDiv); // 빙천검법 섹션 하단에 추가
+}
 
     container.innerHTML = skillData.map(skill => {
         const imageTag = skill.image 
@@ -750,6 +763,17 @@ function showPartDetail(itemName, itemData, parts, parentGrid, isAutoOpen) {
                 }
             }
         };
+
+        const eventTargets = ["협사곡", "옥향초", "치마산", "개", "백향초 재배지", "적령 허리띠"];
+if (eventTargets.includes(itemName)) {
+    const pokiHTML = `
+        <div style="margin-top:15px; border-top:1px dashed #5e4b3c; padding-top:10px; text-align:center;">
+            <img src="images/forky.png" style="width:30px; border:2px solid #d4af37; background:#000;">
+            <p style="font-size:10px; color:#d4af37; margin-top:5px;">포키 발견!</p>
+        </div>
+    `;
+    fixedSpecBox.insertAdjacentHTML('beforeend', pokiHTML);
+}
 
         partContainer.onclick = (e) => { e.stopPropagation(); openSpec(); };
         partGrid.appendChild(partContainer);
