@@ -788,7 +788,9 @@ function showPartDetail(itemName, itemData, parts, parentGrid, isAutoOpen) {
         const partIcon = document.createElement('div');
         partIcon.className = 'game-item-box'; 
         
-        let imgName = (partSpecificData && partSpecificData.file) ? partSpecificData.file : `${part}.png`;
+        let imgName = (partSpecificData && partSpecificData.file) 
+        ? partSpecificData.file 
+        : (itemName + part + ".png");
 
         partIcon.innerHTML = `
             <img src="images/${imgName}" onerror="this.style.display='none'" style="width:85%; height:85%; object-fit:contain; position:relative; z-index:2;">
