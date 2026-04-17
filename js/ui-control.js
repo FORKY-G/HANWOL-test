@@ -266,6 +266,8 @@ mountains.forEach((mt) => {
 potItems.forEach((pot) => {
     const pos = mcToPx(pot.x, pot.z);
     const marker = L.marker(pos, { icon: potIcon }).addTo(layers.pot);
+    
+    // pokiTag 정의를 뺐으므로 popupContent에서도 해당 변수를 삭제했습니다.
     const popupContent = `
         <div style="text-align:center; min-width:200px; color:#000; padding: 0; line-height: 1.3;">
             <div style="font-size:18px; font-weight:800; border-bottom:2px solid #000; padding: 5px 0; margin-bottom: 10px;">${pot.name}</div>
@@ -276,7 +278,7 @@ potItems.forEach((pot) => {
             <div style="font-size:13px; color:#333; letter-spacing:-0.4px; border-top:1px solid #aaa; padding-top: 8px;">
                 <div><span style="font-weight:800; color:#d00;">필요도구:</span> ${pot.tool}</div>
                 <div><span style="color:#666; font-weight:700;">획득아이템:</span> ${pot.item}</div>
-                ${pokiTag} </div>
+            </div>
         </div>
     `;
     marker.bindPopup(popupContent, { autoPan: false, keepInView: true, closeButton: false, offset: L.point(0, -5) });
@@ -749,7 +751,7 @@ window.toggleBlacksmithWindow = function() {
     }
 };
 
-// [20] 3단계: 부위별 상세 정보 렌더링 (적령 허리띠 이벤트 추가)
+// [20] 3단계: 부위별 상세 정보 렌더링 (진무 신발 이미지 이슈 해결 버전)
 function showPartDetail(itemName, itemData, parts, parentGrid, isAutoOpen) {
     const partArea = parentGrid.nextElementSibling;
     if (!partArea) return;
@@ -779,12 +781,15 @@ function showPartDetail(itemName, itemData, parts, parentGrid, isAutoOpen) {
         const partIcon = document.createElement('div');
         partIcon.className = 'game-item-box'; 
         
+        // --- 이미지 경로 안전 로직 ---
         let imgName = (partSpecificData && partSpecificData.file) 
-        ? partSpecificData.file 
-        : (itemName + part + ".png");
+            ? partSpecificData.file 
+            : (itemName + part + ".png");
 
         partIcon.innerHTML = `
-            <img src="images/${imgName}" onerror="this.style.display='none'" style="width:85%; height:85%; object-fit:contain; position:relative; z-index:2;">
+            <img src="images/${imgName}" 
+                 onerror="this.src='images/${part}.png'; this.onerror=function(){this.style.display='none'};" 
+                 style="width:85%; height:85%; object-fit:contain; position:relative; z-index:2;">
             <div style="position:absolute; color:#444; font-size:9px; z-index:1;">${part}</div>
         `;
 
@@ -810,7 +815,6 @@ function showPartDetail(itemName, itemData, parts, parentGrid, isAutoOpen) {
                     ` : ''}
                 `;
 
-                // [이벤트 로직] 아이템 세트 이름이 '적령'이고, 선택한 부위가 '허리띠'일 때만 포키 추가
                 if (itemName === "적령" && part === "허리띠") {
                     fixedSpecBox.insertAdjacentHTML('beforeend', `
                         <div style="margin-top:12px; border-top:1px dashed #5e4b3c; padding-top:10px; text-align:center;">
