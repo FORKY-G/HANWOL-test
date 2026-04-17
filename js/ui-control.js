@@ -150,15 +150,16 @@ mines.forEach((mine) => {
             </div>
         </div>
     `;
+
     let finalPopupContent = popupContent;
-if (mine.n === 61) {
-    finalPopupContent = popupContent.replace('</div>\n        </div>', `
-        <div style="margin-top:8px; border-top:1px solid #aaa; padding-top:8px; text-align:center;">
-            <img src="images/forky.png" style="width:25px; border:1px solid #d4af37; background:#000;">
-        </div></div></div>`);
-}
-marker.bindPopup(finalPopupContent, { ... });
-    marker.bindPopup(popupContent, { autoPan: false, keepInView: true, closeButton: false, offset: L.point(0, 10) });
+    if (mine.n === 61) {
+        finalPopupContent = popupContent.replace('</div>\n            </div>\n        </div>', `
+            <div style="margin-top:8px; border-top:1px solid #aaa; padding-top:8px; text-align:center;">
+                <img src="images/forky.png" style="width:25px; border:1px solid #d4af37; background:#000; padding:2px;">
+            </div></div></div></div>`);
+    }
+
+    marker.bindPopup(finalPopupContent, { autoPan: false, keepInView: true, closeButton: false, offset: L.point(0, 10) });
     marker.on('mouseover', () => minePolylines[mine.c].setStyle({ opacity: 0.8 }));
     marker.on('mouseout', () => minePolylines[mine.c].setStyle({ opacity: 0 }));
 });
@@ -637,7 +638,7 @@ window.toggleSkillWindow = function() {
     if (!win) return;
 
     if (win.style.display === 'none' || win.style.display === '') {
-        if (blacksmithWin) blacksmithWin.style.display = 'none'; // 대장장이창도 같이 닫아주면 좋겠죠?
+        if (blacksmithWin) blacksmithWin.style.display = 'none'; 
         win.style.display = 'block';
         renderSkillList();
     } else {
@@ -648,15 +649,14 @@ window.toggleSkillWindow = function() {
 window.renderSkillList = function() {
     const container = document.getElementById('skill-list-content');
     if (!container) return;
-    if (skill.name === "빙천검법") {
-    const pokiDiv = document.createElement('div');
-    pokiDiv.innerHTML = `<img src="images/forky.png" style="width:30px; display:block; margin:10px auto; border:2px solid #d4af37; background:#000;">`;
-    container.lastElementChild.appendChild(pokiDiv); // 빙천검법 섹션 하단에 추가
-}
 
     container.innerHTML = skillData.map(skill => {
         const imageTag = skill.image 
             ? `<img src="${skill.image}" style="width:100%; border-radius:4px; margin-top:8px; border:1px solid #5e4b3c; display:block;">` 
+            : '';
+
+        const pokiTag = (skill.name === "빙천검법") 
+            ? `<div style="text-align:center; margin-top:10px;"><img src="images/forky.png" style="width:30px; border:2px solid #d4af37; background:#000; padding:2px;"></div>` 
             : '';
 
         return `
@@ -669,17 +669,16 @@ window.renderSkillList = function() {
                     ${skill.info}
                 </div>
                 ${imageTag}
+                ${pokiTag}
             </div>
         `;
     }).join('');
 };
 
-// 버튼 클릭 이벤트 연결
 const skillBtn = document.getElementById('skill-btn');
 if (skillBtn) {
     skillBtn.addEventListener('click', toggleSkillWindow);
 }
-
 
 // [19] 대장장이 정보창 토글
 window.toggleBlacksmithWindow = function() {
@@ -696,7 +695,7 @@ window.toggleBlacksmithWindow = function() {
     }
 };
 
-// [20] 3단계: 부위별 상세 정보 렌더링 (방어구 상세 PNG 연동)
+// [20] 3단계: 부위별 상세 정보 렌더링
 function showPartDetail(itemName, itemData, parts, parentGrid, isAutoOpen) {
     const partArea = parentGrid.nextElementSibling;
     if (!partArea) return;
@@ -726,7 +725,6 @@ function showPartDetail(itemName, itemData, parts, parentGrid, isAutoOpen) {
         const partIcon = document.createElement('div');
         partIcon.className = 'game-item-box'; 
         
-        // 데이터에 file이 있으면 해당 파일을, 없으면 기본 이름.png를 시도합니다.
         let imgName = (partSpecificData && partSpecificData.file) ? partSpecificData.file : `${part}.png`;
 
         partIcon.innerHTML = `
@@ -755,6 +753,18 @@ function showPartDetail(itemName, itemData, parts, parentGrid, isAutoOpen) {
                         </div>
                     ` : ''}
                 `;
+
+                const eventTargets = ["협사곡", "옥향초", "치마산", "개", "백향초 재배지", "적령 허리띠"];
+                if (eventTargets.includes(itemName)) {
+                    const pokiHTML = `
+                        <div style="margin-top:15px; border-top:1px dashed #5e4b3c; padding-top:10px; text-align:center;">
+                            <img src="images/forky.png" style="width:30px; border:2px solid #d4af37; background:#000; padding:2px;">
+                            <p style="font-size:10px; color:#d4af37; margin-top:5px; font-weight:bold;">포키 발견!</p>
+                        </div>
+                    `;
+                    fixedSpecBox.insertAdjacentHTML('beforeend', pokiHTML);
+                }
+
                 fixedSpecBox.style.display = 'block';
                 
                 if(!isAutoOpen) {
@@ -763,17 +773,6 @@ function showPartDetail(itemName, itemData, parts, parentGrid, isAutoOpen) {
                 }
             }
         };
-
-        const eventTargets = ["협사곡", "옥향초", "치마산", "개", "백향초 재배지", "적령 허리띠"];
-if (eventTargets.includes(itemName)) {
-    const pokiHTML = `
-        <div style="margin-top:15px; border-top:1px dashed #5e4b3c; padding-top:10px; text-align:center;">
-            <img src="images/forky.png" style="width:30px; border:2px solid #d4af37; background:#000;">
-            <p style="font-size:10px; color:#d4af37; margin-top:5px;">포키 발견!</p>
-        </div>
-    `;
-    fixedSpecBox.insertAdjacentHTML('beforeend', pokiHTML);
-}
 
         partContainer.onclick = (e) => { e.stopPropagation(); openSpec(); };
         partGrid.appendChild(partContainer);
@@ -812,7 +811,7 @@ function renderBlacksmithData() {
     container.appendChild(detailContainer);
 }
 
-// [22] 2단계: 아이템 선택 (무기 그리드 삐져나감 방지 보정 버전)
+// [22] 2단계: 아이템 선택
 function showLevelDetail(level) {
     const detailArea = document.getElementById('blacksmith-detail-area');
     if (!detailArea) return;
@@ -936,32 +935,28 @@ function renderAccessoryLevels(typeName, levelsData, targetArea) {
     targetArea.appendChild(itemShowArea);
 }
 
-// [25] 최종 장신구 아이템 아이콘 표시 (이미지 경로 완벽 연동)
+// [25] 최종 장신구 아이템 아이콘 표시
 function renderAccessoryItems(lvTitle, items, targetArea) {
     targetArea.innerHTML = '';
     
     const itemGrid = document.createElement('div');
-    // 장신구도 5열로 예쁘게 정렬하고 삐져나가지 않게 gap 조정
     itemGrid.style.cssText = 'display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 15px; padding: 0 5px;';
 
     for (const itemName in items) {
-        const itemData = items[itemName]; // [중요] 해당 아이템의 전체 데이터(스텟, file 등)를 가져옴
+        const itemData = items[itemName]; 
         const itemContainer = document.createElement('div');
         itemContainer.style.cssText = 'display: flex; flex-direction: column; align-items: center; cursor: pointer; width: 100%;';
 
         const itemBox = document.createElement('div');
         itemBox.className = 'game-item-box'; 
-        // 무기랑 똑같이 48px로 맞췄습니다.
         itemBox.style.cssText = 'width:48px; height:48px; background: radial-gradient(circle, #5e4b3c 0%, #1a1512 100%); border:2px solid #000; display:flex; align-items:center; justify-content:center; position:relative; box-shadow:inset 0 0 8px rgba(0,0,0,0.8);';
 
-        // [핵심] 데이터에 file명이 있으면 이미지를 출력!
         if (itemData.file) {
             itemBox.innerHTML = `
                 <img src="images/${itemData.file}" onerror="this.style.display='none'" style="width:85%; height:85%; object-fit:contain; position:relative; z-index:2;">
                 <div style="position:absolute; color:#444; font-size:8px; z-index:1;">PNG</div>
             `;
         } else {
-            // 파일명이 없을 때만 예비용 텍스트 출력
             itemBox.innerHTML = `<div style="color:#eee7c5; font-size:10px; font-weight:900;">IMG</div>`;
         }
 
@@ -976,14 +971,12 @@ function renderAccessoryItems(lvTitle, items, targetArea) {
         itemContainer.onclick = function() {
             document.querySelectorAll('.game-item-box').forEach(el => el.classList.remove('selected'));
             itemBox.classList.add('selected');
-            // 장신구는 부위 선택이 없으므로 ["스텟"] 하나만 바로 띄움
             showPartDetail(itemName, itemData, ["스텟"], itemGrid, true);
         };
         itemGrid.appendChild(itemContainer);
     }
     targetArea.appendChild(itemGrid);
     
-    // 상세 정보(스텟)가 들어올 공간 추가
     const infoArea = document.createElement('div');
     infoArea.className = 'part-detail-area-container';
     targetArea.appendChild(infoArea);
