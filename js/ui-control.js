@@ -1144,8 +1144,7 @@ window.showRecipe = function(npcName, index) {
             </div>
         `;
         
-        // [중요 수정] map.closePopup()을 지우고, 팝업 위치만 새로고침 해줍니다.
-        // 이 코드가 있어야 창이 안 닫히고 높이만 부드럽게 조절됩니다.
+        // [수정 완료] 팝업 위치만 새로고침 하여 창이 닫히지 않게 함
         const openPopup = map._popup; 
         if (openPopup) {
             openPopup.update(); 
