@@ -34,14 +34,23 @@ const luckyPokiCoords = allPokiCandidates.slice(0, 9).map(c => `${c.x},${c.z}`);
 const allEquipmentNames = [];
 for (const level in blacksmithData) {
     for (const cat in blacksmithData[level]) {
-        if (blacksmithData[level][cat].items) {
-            Object.keys(blacksmithData[level][cat].items).forEach(name => {
-                allEquipmentNames.push(name);
+        const catData = blacksmithData[level][cat];
+        if (catData.items) {
+            Object.keys(catData.items).forEach(itemName => {
+                // 방어구라면 4부위를 각각 추가, 무기라면 이름만 추가
+                if (cat === "방어구") {
+                    ["투구", "갑옷", "허리띠", "신발"].forEach(part => {
+                        allEquipmentNames.push(`${itemName} ${part}`);
+                    });
+                } else {
+                    allEquipmentNames.push(itemName); // 무기나 장신구
+                }
             });
         }
     }
 }
-// 똑같은 방식으로 장비 1개 추출
+
+// 2시간 고정 시드로 딱 1개 부위만 당첨!
 const equipmentSeed = EVENT_SEED + 999;
 const luckyEquipment = [allEquipmentNames[Math.floor(seededRandom(equipmentSeed) * allEquipmentNames.length)]];
 
