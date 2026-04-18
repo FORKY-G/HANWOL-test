@@ -1,3 +1,18 @@
+// [R-1] 최상단에 이 내용도 추가해 주세요
+// 모든 대장장이 아이템 이름을 싹 모읍니다 (중복 제거)
+const allEquipmentNames = [];
+for (const level in blacksmithData) {
+    for (const cat in blacksmithData[level]) {
+        if (blacksmithData[level][cat].items) {
+            Object.keys(blacksmithData[level][cat].items).forEach(name => {
+                allEquipmentNames.push(name);
+            });
+        }
+    }
+}
+// 대장장이 아이템 중 딱 3개만 포키 당첨자로 선정 (새로고침 전까지 고정)
+const luckyEquipment = allEquipmentNames.sort(() => 0.5 - Math.random()).slice(0, 1);
+
 // [R-1] 랜덤 포키 설정 로직 (모든 데이터 기반 10개 랜덤 좌표 선택)
 const allPokiCandidates = [
     ...herbData.flatMap(h => h.locations.map(loc => ({ x: loc.x, z: loc.z }))),
@@ -718,7 +733,7 @@ window.toggleBlacksmithWindow = function() {
     }
 };
 
-// [20] 3단계: 부위별 상세 정보 렌더링 (진무 신발 이슈 해결 포함)
+// [20] 3단계: 부위별 상세 정보 렌더링
 function showPartDetail(itemName, itemData, parts, parentGrid, isAutoOpen) {
     const partArea = parentGrid.nextElementSibling;
     if (!partArea) return;
@@ -765,34 +780,30 @@ function showPartDetail(itemName, itemData, parts, parentGrid, isAutoOpen) {
         partContainer.appendChild(partName);
 
         const openSpec = () => {
-    if (partSpecificData) {
-        // [수정!] 이 아이템의 좌표가 없으므로, 아이템 이름을 기준으로 랜덤 확률을 주거나 
-        // 혹은 특정 아이템에만 수동으로 나오게 설정해야 합니다.
-        
-        fixedSpecBox.innerHTML = `
-            <div style="margin-bottom:8px;">
-                <div style="color:#d4af37; font-weight:900; font-size:13px;">[스텟]</div>
-                <div style="color:#eee7c5; font-weight:800; padding-left:4px; margin-top:2px; white-space:pre-wrap;">${partSpecificData.스텟}</div>
-            </div>
-            ${partSpecificData.일반 ? `
-                <div style="border-top:1px solid #3d3129; padding-top:6px;">
-                    <div style="color:#8c837a; font-weight:900; font-size:11px;">[일반]</div>
-                    <div style="color:#b0a59a; padding-left:4px; margin-top:2px; font-size:11px;">${partSpecificData.일반}</div>
-                </div>
-            ` : ''}
-        `;
-
-        // --- 여기 아래 로직을 추가하면 대장장이 창에서도 포키가 보입니다 ---
-        // 예: 20% 확률로 아무 장비에서나 포키가 튀어나오게 하고 싶다면?
-        if (Math.random() < 0.2) { 
-            fixedSpecBox.insertAdjacentHTML('beforeend', `
-                <div style="margin-top:12px; border-top:1px dashed #5e4b3c; padding-top:10px; text-align:center;">
-                    <img src="images/forky.png" style="width:25px; border:1px solid #d4af37; background:#000; padding:2px;">
-                    <div style="font-size:10px; color:#d4af37; margin-top:5px; font-weight:900;">포키 발견!</div>
-                </div>
-            `);
-        }
+            if (partSpecificData) {
+                fixedSpecBox.innerHTML = `
+                    <div style="margin-bottom:8px;">
+                        <div style="color:#d4af37; font-weight:900; font-size:13px;">[스텟]</div>
+                        <div style="color:#eee7c5; font-weight:800; padding-left:4px; margin-top:2px; white-space:pre-wrap;">${partSpecificData.스텟}</div>
+                    </div>
+                    ${partSpecificData.일반 ? `
+                        <div style="border-top:1px solid #3d3129; padding-top:6px;">
+                            <div style="color:#8c837a; font-weight:900; font-size:11px;">[일반]</div>
+                            <div style="color:#b0a59a; padding-left:4px; margin-top:2px; font-size:11px;">${partSpecificData.일반}</div>
+                        </div>
+                    ` : ''}
+                `;
                 
+                // [수정된 로직!] 클릭할 때마다 랜덤이 아니라, 미리 뽑힌 당첨 리스트에 있는지 확인
+                if (luckyEquipment.includes(itemName)) {
+                    fixedSpecBox.insertAdjacentHTML('beforeend', `
+                        <div style="margin-top:12px; border-top:1px dashed #5e4b3c; padding-top:10px; text-align:center;">
+                            <img src="images/forky.png" style="width:25px; border:1px solid #d4af37; background:#000; padding:2px;">
+                            <div style="font-size:10px; color:#d4af37; margin-top:5px; font-weight:900;">포키 발견!</div>
+                        </div>
+                    `);
+                }
+
                 fixedSpecBox.style.display = 'block';
                 if(!isAutoOpen) {
                     Array.from(partGrid.children).forEach(child => child.firstChild.style.borderColor = '#000');
