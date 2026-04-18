@@ -987,3 +987,34 @@ window.showRecipe = function(npcName, index) {
         `;
     }
 };
+
+// [초기화 버튼 기능 연결]
+// 사냥터 초기화
+const resetHuntBtn = document.getElementById('reset-hunt');
+if (resetHuntBtn) {
+    resetHuntBtn.addEventListener('click', () => {
+        huntingGrounds.forEach(area => {
+            const cb = document.getElementById(`hunt-${area.name}`);
+            if (cb && cb.checked) {
+                cb.checked = false;
+                // 기존 change 이벤트를 강제로 발생시켜 레이어를 제거합니다.
+                cb.dispatchEvent(new Event('change'));
+            }
+        });
+    });
+}
+
+// 약초 초기화
+const resetHerbBtn = document.getElementById('reset-herb');
+if (resetHerbBtn) {
+    resetHerbBtn.addEventListener('click', () => {
+        sortedHerbData.forEach(herb => {
+            const cb = document.getElementById(`herb-${herb.name}`);
+            if (cb && cb.checked) {
+                cb.checked = false;
+                // 기존 change 이벤트를 강제로 발생시켜 레이어를 제거합니다.
+                cb.dispatchEvent(new Event('change'));
+            }
+        });
+    });
+}
